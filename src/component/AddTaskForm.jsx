@@ -17,10 +17,11 @@ const AddTaskForm = (props) => {
     //S Stops the default behaviour of form submission
     e.preventDefault();
     //Add the ID to task Object
-    setTaskObject({ ...taskObject, id: randomIDGenerator() });
+    const taskWithId = { ...taskObject, id: randomIDGenerator() };
 
     // Logic to add task
-    addTask(taskObject);
+    addTask(taskWithId);
+
     setTaskObject(initialTaskObject);
   };
 

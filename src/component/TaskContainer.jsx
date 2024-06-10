@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddTaskForm from "./AddTaskForm";
 import TaskList from "./TaskList";
 import TimeDisplay from "./TimeDisplay";
 
 const TaskContainer = () => {
-  const [taskList, setTaskList] = useState([]);
-  // Function to add Task
+  const storedTaskedList = JSON.parse(localStorage.getItem("taskList")) || [];
+  const [taskList, setTaskList] = useState(storedTaskedList);
 
+  // Function to add Task
   const addTask = (taskObject) => {
+    const newTotalTime = totalTimeSpent + Number(taskObject.taskTime);
+    if (
+      taskList.find(
+        (item) =>
+          item.taskName.toLowerCase() === taskObject.taskName.toLowerCase()
+      )
+    ) {
+      alert("This task already exists");
+      return;
+    }
+    if (newTotalTime > totalWeekTime) {
+      alert("Total spent time exceeds the total available weekly time.");
+      return;
+    }
+
     setTaskList([...taskList, taskObject]);
   };
 
@@ -35,6 +51,8 @@ const TaskContainer = () => {
   const entryTask = taskList.filter((task) => task.type === "entry");
   const unwantedTask = taskList.filter((task) => task.type === "unwanted");
 
+  // Defining time variables
+  const totalWeekTime = 24 * 7;
   const totalTimeSpent = taskList.reduce((acc, curr) => {
     return acc + Number(curr.taskTime);
   }, 0);
@@ -42,8 +60,10 @@ const TaskContainer = () => {
   const totalWastedtime = unwantedTask.reduce((acc, curr) => {
     return acc + Number(curr.taskTime);
   }, 0);
-
-  console.log(taskList);
+  // Save task list to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("taskList", JSON.stringify(taskList));
+  }, [taskList]);
   return (
     <div className="shadow-lg border p-4 rounded">
       <div className="row gap-2">
@@ -72,6 +92,7 @@ const TaskContainer = () => {
       <TimeDisplay
         totalTimeSpent={totalTimeSpent}
         totalTimeWasted={totalWastedtime}
+        totalWeekTime={totalWeekTime}
       />
     </div>
   );
